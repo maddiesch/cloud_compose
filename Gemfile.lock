@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cloud_compose (0.2.0)
+    cloud_compose (0.3.0)
 
 GEM
   remote: https://rubygems.org/

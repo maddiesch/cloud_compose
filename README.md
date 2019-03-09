@@ -2,7 +2,7 @@
 
 Compose multiple cloud formation templates into one file.
 
-`cloud-compose ./template.yml ./output`
+`cloud-compose build ./template.yml ./output`
 
 ```yaml
 # template.yml

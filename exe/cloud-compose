@@ -1,17 +1,30 @@
 #!/usr/bin/env ruby
 
 require 'cloud_compose'
+require 'cloud_compose/cli'
 
-command = ARGV.shift
+COMMANDS = {
+  'build' => CloudCompose::Cli::Build,
+  'version' => ->(_) { STDOUT.puts CloudCompose::VERSION },
+  'help' => ->(_) { STDERR.puts HELP_MESSAGE },
+  'print' => CloudCompose::Cli::Print
+}.freeze
 
-case command
-when 'build'
-  input_file_path = File.expand_path(ARGV.shift)
-  output_file_path = File.expand_path(ARGV.shift || './') + '/' + File.basename(input_file_path)
+HELP_MESSAGE = <<~EOF.freeze
+  CloudCompose #{CloudCompose::VERSION} Help
 
-  template = CloudCompose::Template.new(input_file_path, File.expand_path('.'))
-  File.open(output_file_path, 'w') { |f| f.write(template.to_s) }
-else
-  STDERR.puts "Unknown Command #{command}"
+  Commands
+  #{COMMANDS.keys.map { |k| "  - #{k}" }.join("\n")}
+EOF
+
+command_name = ARGV.shift
+
+command_name = 'help' if command_name.nil? || command_name.empty?
+
+begin
+  command = COMMANDS.fetch(command_name)
+  command.call(ARGV)
+rescue StandardError => error
+  STDERR.puts "Error: #{error}"
   exit(1)
 end

@@ -262,4 +262,15 @@ RSpec.describe CloudCompose::Parser do
 
     it { expect(dumped).to eq content }
   end
+
+  describe '!Random' do
+    let(:content) do
+      <<~EOF
+        ---
+        value: !Random [ hex, 10 ]
+      EOF
+    end
+
+    it { expect(dumped).to match(/---\nvalue: [\h]{20}\n/) }
+  end
 end

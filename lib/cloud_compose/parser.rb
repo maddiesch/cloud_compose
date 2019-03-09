@@ -4,6 +4,7 @@ require_relative 'tags/simple_type'
 
 require_relative 'tags/get_att'
 require_relative 'tags/sub'
+require_relative 'tags/random'
 
 module CloudCompose
   class Parser
@@ -21,6 +22,7 @@ module CloudCompose
       '!Join' => CloudCompose::Tags::Join,
       '!Not' => CloudCompose::Tags::Not,
       '!Or' => CloudCompose::Tags::Or,
+      '!Random' => CloudCompose::Tags::Random,
       '!Ref' => CloudCompose::Tags::Ref,
       '!Select' => CloudCompose::Tags::Select,
       '!Split' => CloudCompose::Tags::Split,

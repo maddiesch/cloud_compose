@@ -7,6 +7,10 @@ $cloud_compose:
       path: ./sub_readme.yml
     - name: SubTemplateTwo
       path: ./sub_readme.yml
+    - name: DevUserOne
+      path: !Builtin iam_console_user.yml
+      parameters:
+        username: dev-user-one
 ---
 
 Resources:

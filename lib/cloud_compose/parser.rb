@@ -2,6 +2,7 @@ require 'psych'
 
 require_relative 'tags/simple_type'
 
+require_relative 'tags/builtin'
 require_relative 'tags/get_att'
 require_relative 'tags/sub'
 require_relative 'tags/random'
@@ -11,6 +12,7 @@ module CloudCompose
     CUSTOM_TAGS = {
       '!And' => CloudCompose::Tags::And,
       '!Base64' => CloudCompose::Tags::Base64,
+      '!Builtin' => CloudCompose::Tags::Builtin,
       '!Cidr' => CloudCompose::Tags::Cidr,
       '!Condition' => CloudCompose::Tags::Condition,
       '!Equals' => CloudCompose::Tags::Equals,

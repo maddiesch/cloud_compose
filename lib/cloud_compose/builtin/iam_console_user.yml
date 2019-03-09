@@ -1,0 +1,31 @@
+---
+$cloud_compose:
+  partial: true
+  require:
+    - username
+---
+Parameters:
+  $(name)ManagedPolicyArnsParameter:
+    Type: CommaDelimitedList
+    Description: List of Managed Profile Arns.
+    Default: arn:aws:iam::aws:policy/ReadOnlyAccess
+Mappings:
+  $(name)UserAccount:
+    Password:
+      Value: !Random [ hex, 12 ]
+Resources:
+  $(name)UserAccount:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: $(username)
+      ManagedPolicyArns: !Ref $(name)ManagedPolicyArnsParameter
+      LoginProfile:
+        Password: !FindInMap [ $(name)UserAccount, Password, Value ]
+        PasswordResetRequired: true
+Outputs:
+  $(name)UserAccountName:
+    Value: !Ref $(name)UserAccount
+  $(name)UserAccountArn:
+    Value: !GetAtt [ $(name)UserAccount, Arn ]
+  $(name)UserAccountTemporaryPassword:
+    Value: !FindInMap [ $(name)UserAccount, Password, Value ]

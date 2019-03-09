@@ -15,6 +15,22 @@ $cloud_compose:
       path: ./sub_readme.yml
     - name: SubTemplateTwo
       path: ./sub_readme.yml
+    - name: DevUserOne
+      path: !Builtin iam_console_user.yml
+      parameters:
+        username: dev-user-one
+---
+
+Resources:
+  $(GlobalName)MainResource:
+    Type: AWS::Fake::Thing
+    Properties:
+      Name: My Main Resource
+  SecondaryResource:
+    Type: AWS::Fake::Thing
+    Properties:
+      ParentThing: !Ref $(GlobalName)MainResource
+
 ---
 
 Resources:
@@ -66,9 +82,42 @@ Resources:
     Type: AWS::Fake::Thing
     Properties:
       ParentThing: !Ref TestTemplateMainResource
+  DevUserOneUserAccount:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: dev-user-one
+      ManagedPolicyArns: !Ref DevUserOneManagedPolicyArnsParameter
+      LoginProfile:
+        Password: !FindInMap
+        - DevUserOneUserAccount
+        - Password
+        - Value
+        PasswordResetRequired: true
+Parameters:
+  DevUserOneManagedPolicyArnsParameter:
+    Type: CommaDelimitedList
+    Description: List of Managed Profile Arns.
+    Default: arn:aws:iam::aws:policy/ReadOnlyAccess
+Mappings:
+  DevUserOneUserAccount:
+    Password:
+      Value: 124aa4d58a48b77b8b4397be
 Outputs:
   SubTemplateOneResourceOutput:
     Value: !Ref SubTemplateOneResource
   SubTemplateTwoResourceOutput:
     Value: !Ref SubTemplateTwoResource
+  DevUserOneUserAccountName:
+    Value: !Ref DevUserOneUserAccount
+  DevUserOneUserAccountArn:
+    Value: !GetAtt
+    - DevUserOneUserAccount
+    - Arn
+  DevUserOneUserAccountTemporaryPassword:
+    Value: !FindInMap
+    - DevUserOneUserAccount
+    - Password
+    - Value
+
+
 ```

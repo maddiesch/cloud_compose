@@ -35,7 +35,7 @@ module CloudCompose
     private
 
     def import_path(obj)
-      File.expand_path(obj.fetch('path'), @root)
+      File.expand_path(obj.fetch('path').to_s, @root)
     end
   end
 end

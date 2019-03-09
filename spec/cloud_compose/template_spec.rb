@@ -18,4 +18,14 @@ RSpec.describe CloudCompose::Template do
       expect { template.to_s }.to_not raise_error
     end
   end
+
+  describe 'given a builtin imports' do
+    let(:template) { described_class.new(template_path('user.yml'), '') }
+
+    it 'does not raise an error' do
+      expect { template.to_s }.to_not raise_error
+    end
+
+    it { puts "\n#{template.to_s}" }
+  end
 end

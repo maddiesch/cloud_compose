@@ -1,0 +1,12 @@
+---
+$cloud_compose:
+  imports:
+    - name: DevUserOne
+      path: !Builtin iam_console_user.yml
+      parameters:
+        username: dev-user-one
+    - name: DevUserTwo
+      path: !Builtin iam_console_user.yml
+      parameters:
+        username: dev-user-two
+---

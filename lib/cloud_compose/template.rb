@@ -36,7 +36,7 @@ module CloudCompose
       @checksum = Digest::SHA256.hexdigest(content)
       parts = content.split(/^---/, 3)
       @config = CloudCompose::Config.new(parts[1], @root)
-      @content = parts[2]
+      @content = parts[2] || ''
     end
 
     def to_h
@@ -133,9 +133,7 @@ module CloudCompose
     end
 
     def create_hash(context)
-      CloudCompose::Parser.load_yaml(
-        CloudCompose::Processor.preprocess(content, context)
-      )
+      CloudCompose::Parser.load_yaml(CloudCompose::Processor.preprocess(content, context)) || {}
     end
 
     def preload_imports!

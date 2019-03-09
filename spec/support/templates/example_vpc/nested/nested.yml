@@ -1,0 +1,6 @@
+---
+$cloud_compose:
+  partial: true
+---
+
+Resources: {}

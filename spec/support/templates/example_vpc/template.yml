@@ -1,0 +1,83 @@
+---
+$cloud_compose:
+  parameters:
+    DefaultVPCCidrPrefix: '10.32'
+  imports:
+    - name: SubnetOne
+      path: ./subnet.yml
+      parameters:
+        DefaultPublicBaseIp: '0'
+        DefaultPrivateBaseIp: '16'
+    - name: SubnetTwo
+      path: ./subnet.yml
+      parameters:
+        DefaultPublicBaseIp: '32'
+        DefaultPrivateBaseIp: '48'
+    - name: SubnetThree
+      path: ./subnet.yml
+      parameters:
+        DefaultPublicBaseIp: '64'
+        DefaultPrivateBaseIp: '80'
+---
+
+Parameters:
+  VPCCidrBlockParameter:
+    Type: String
+    Default: $(DefaultVPCCidrPrefix).0.0/16
+    Description: Network CIDR
+    AllowedPattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$
+  OwnerTagValueParameter:
+    Type: String
+    Default: Account
+    Description: The owner of this resource
+  ResourceTypeValueParameter:
+    Type: String
+    Default: personal
+    Description: The type of resource (Usually the project this belongs to)
+Resources:
+  VPCResource:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCidrBlockParameter
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Owner
+          Value: !Ref OwnerTagValueParameter
+        - Key: Resource
+          Value: !Ref ResourceTypeValueParameter
+  InternetGatewayResource:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Owner
+          Value: !Ref OwnerTagValueParameter
+        - Key: Resource
+          Value: !Ref ResourceTypeValueParameter
+  VPCGatewayAttachmentResource:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPCResource
+      InternetGatewayId: !Ref InternetGatewayResource
+  PublicRouteTableResource:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCResource
+      Tags:
+        - Key: Owner
+          Value: !Ref OwnerTagValueParameter
+        - Key: Resource
+          Value: !Ref ResourceTypeValueParameter
+  PublicSubnetsInternetRouteResource:
+    Type: AWS::EC2::Route
+    DependsOn: VPCGatewayAttachmentResource
+    Properties:
+      RouteTableId: !Ref PublicRouteTableResource
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGatewayResource
+Outputs:
+  VPCID:
+    Value: !Ref VPCResource
+    Export:
+      Name: PersonalVPCID

@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+require 'cloud_compose'
+
+command = ARGV.shift
+
+case command
+when 'build'
+  input_file_path = File.expand_path(ARGV.shift)
+  output_file_path = File.expand_path(ARGV.shift || './') + '/' + File.basename(input_file_path)
+
+  template = CloudCompose::Template.new(input_file_path, File.expand_path('.'))
+  File.open(output_file_path, 'w') { |f| f.write(template.to_s) }
+else
+  STDERR.puts "Unknown Command #{command}"
+  exit(1)
+end

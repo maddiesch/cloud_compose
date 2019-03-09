@@ -1,0 +1,94 @@
+---
+$cloud_compose:
+  partial: true
+  require:
+    - DefaultPublicBaseIp
+    - DefaultPrivateBaseIp
+    - DefaultVPCCidrPrefix
+  imports:
+    - name: Nested
+      path: ./nested/nested.yml
+---
+
+Parameters:
+  VPCCidrBlock$(name)Parameter:
+    Type: String
+    Default: $(DefaultVPCCidrPrefix).$(DefaultPublicBaseIp).0/20
+    Description: Network CIDR for $(name) (Default /20 Gives us 4094 available IPs)
+    AllowedPattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$
+  VPCCidrBlockPrivate$(name)Parameter:
+    Type: String
+    Default: $(DefaultVPCCidrPrefix).$(DefaultPrivateBaseIp).0/20
+    Description: Network CIDR for Private $(name) (Default /20 Gives us 4094 available IPs)
+    AllowedPattern: ^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$
+  VPC$(name)AzParameter:
+    Type: AWS::EC2::AvailabilityZone::Name
+Resources:
+  Public$(name)Resource:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Ref VPC$(name)AzParameter
+      VpcId: !Ref VPCResource
+      CidrBlock: !Ref VPCCidrBlock$(name)Parameter
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Owner
+          Value: !Ref OwnerTagValueParameter
+        - Key: Resource
+          Value: !Ref ResourceTypeValueParameter
+  Private$(name)Resource:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Ref VPC$(name)AzParameter
+      VpcId: !Ref VPCResource
+      CidrBlock: !Ref VPCCidrBlockPrivate$(name)Parameter
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Owner
+          Value: !Ref OwnerTagValueParameter
+        - Key: Resource
+          Value: !Ref ResourceTypeValueParameter
+  NatGateway$(name)EIPResource:
+    Type: AWS::EC2::EIP
+    DependsOn: VPCGatewayAttachmentResource
+    Properties:
+      Domain: vpc
+  Public$(name)RoutingResource:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Public$(name)Resource
+      RouteTableId: !Ref PublicRouteTableResource
+  NatGateway$(name)Resource:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt [ NatGateway$(name)EIPResource, AllocationId ]
+      SubnetId: !Ref Public$(name)Resource
+  PrivateRouteTable$(name)Resource:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCResource
+      Tags:
+        - Key: Owner
+          Value: !Ref OwnerTagValueParameter
+        - Key: Resource
+          Value: !Ref ResourceTypeValueParameter
+  PrivateRoute$(name)Resource:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable$(name)Resource
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway$(name)Resource
+  PrivateRoute$(name)TableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable$(name)Resource
+      SubnetId: !Ref Private$(name)Resource
+Outputs:
+  Public$(name):
+    Value: !Ref Public$(name)Resource
+    Export:
+      Name: Public$(name)ID
+  Private$(name):
+    Value: !Ref Private$(name)Resource
+    Export:
+      Name: Private$(name)ID

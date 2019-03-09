@@ -9,7 +9,11 @@ require_relative 'processor'
 module CloudCompose
   class Template
     IMPORT_MERGE_KEYS = %w[
+      Metadata
       Parameters
+      Mappings
+      Conditions
+      Transform
       Resources
       Outputs
     ].freeze
@@ -40,6 +44,10 @@ module CloudCompose
       imported.each do |imp|
         formatted_imp = imp.template.send(:create_hash, imp.context)
         merge_imported(template_body, formatted_imp, imp.name)
+      end
+
+      template_body.keys.each do |key|
+        template_body.delete(key) if template_body[key].empty?
       end
 
       template_body
@@ -134,18 +142,7 @@ module CloudCompose
       return if defined?(@imported)
 
       @imported = @config.imports.map do |imported|
-        template = CloudCompose::Template.new(imported.path, @pwd)
-        raise Error, "Template #{File.basename(imported.path)} imported from #{@file_name} is not a partial" unless template.config.partial?
-
-        full_params = parameters.merge(imported.parameters).merge(template.parameters)
-
-        validate_parameters!(imported, full_params, template.required_parameters)
-
-        Partial.new(
-          imported.name,
-          template,
-          full_params
-        )
+        create_template(imported)
       end
     end
 
@@ -155,6 +152,21 @@ module CloudCompose
 
         raise Error, "Missing Required Parameter #{key} in #{imported.name}"
       end
+    end
+
+    def create_template(imported)
+      template = CloudCompose::Template.new(imported.path, @pwd)
+      raise Error, "Template #{File.basename(imported.path)} imported from #{@file_name} is not a partial" unless template.config.partial?
+
+      full_params = parameters.merge(imported.parameters).merge(template.parameters)
+
+      validate_parameters!(imported, full_params, template.required_parameters)
+
+      Partial.new(
+        imported.name,
+        template,
+        full_params
+      )
     end
   end
 end

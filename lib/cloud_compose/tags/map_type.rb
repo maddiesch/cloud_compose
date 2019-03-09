@@ -2,17 +2,11 @@ require_relative 'base'
 
 module CloudCompose
   module Tags
-    class GetAtt < Base
-      def type_from_coder(_coder)
-        :seq
-      end
-
+    class MapType < Base
       def value_from_coder(coder)
         case coder.type
-        when :seq
-          coder.seq
-        when :scalar
-          coder.scalar.split('.', 2)
+        when :map
+          coder.map
         else
           raise InvalidTypeError.new(coder.tag, coder.type)
         end

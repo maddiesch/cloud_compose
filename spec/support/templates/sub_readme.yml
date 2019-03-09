@@ -1,0 +1,13 @@
+---
+$cloud_compose:
+  partial: true
+---
+
+Resources:
+  $(name)Resource:
+    Type: AWS::Fake::Thing
+    Properties:
+      ParentThing: !Ref $(GlobalName)MainResource
+Outputs:
+  $(name)ResourceOutput:
+    Value: !Ref $(name)Resource

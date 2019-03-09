@@ -8,12 +8,24 @@ require_relative 'tags/sub'
 module CloudCompose
   class Parser
     CUSTOM_TAGS = {
+      '!And' => CloudCompose::Tags::And,
       '!Base64' => CloudCompose::Tags::Base64,
       '!Cidr' => CloudCompose::Tags::Cidr,
+      '!Condition' => CloudCompose::Tags::Condition,
+      '!Equals' => CloudCompose::Tags::Equals,
       '!FindInMap' => CloudCompose::Tags::FindInMap,
+      '!GetAZs' => CloudCompose::Tags::GetAzs,
       '!GetAtt' => CloudCompose::Tags::GetAtt,
+      '!If' => CloudCompose::Tags::If,
+      '!ImportValue' => CloudCompose::Tags::ImportValue,
+      '!Join' => CloudCompose::Tags::Join,
+      '!Not' => CloudCompose::Tags::Not,
+      '!Or' => CloudCompose::Tags::Or,
       '!Ref' => CloudCompose::Tags::Ref,
-      '!Sub' => CloudCompose::Tags::Sub
+      '!Select' => CloudCompose::Tags::Select,
+      '!Split' => CloudCompose::Tags::Split,
+      '!Sub' => CloudCompose::Tags::Sub,
+      '!Transform' => CloudCompose::Tags::Transform
     }.freeze
 
     class << self

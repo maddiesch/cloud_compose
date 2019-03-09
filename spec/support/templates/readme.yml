@@ -1,0 +1,20 @@
+---
+$cloud_compose:
+  parameters:
+    GlobalName: 'TestTemplate'
+  imports:
+    - name: SubTemplateOne
+      path: ./sub_readme.yml
+    - name: SubTemplateTwo
+      path: ./sub_readme.yml
+---
+
+Resources:
+  $(GlobalName)MainResource:
+    Type: AWS::Fake::Thing
+    Properties:
+      Name: My Main Resource
+  SecondaryResource:
+    Type: AWS::Fake::Thing
+    Properties:
+      ParentThing: !Ref $(GlobalName)MainResource

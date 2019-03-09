@@ -18,7 +18,7 @@ module CloudCompose
       @config.fetch('imports', []).map do |obj|
         Import.new(
           obj.fetch('name'),
-          File.expand_path(obj.fetch('path'), @root),
+          import_path(obj),
           obj.fetch('parameters', {})
         )
       end
@@ -30,6 +30,12 @@ module CloudCompose
 
     def required_parameters
       @config.fetch('require', [])
+    end
+
+    private
+
+    def import_path(obj)
+      File.expand_path(obj.fetch('path'), @root)
     end
   end
 end
